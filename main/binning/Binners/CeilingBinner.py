@@ -5,7 +5,7 @@ from main.binning.Binners.Binner import Binner
 
 DEFAULT_SIZE = (25,25)
 DEFAULT_CENTER = (0,0,0)
-CEILING_BIN_SIZE = np.array((1,1)) # axis-specific, & height
+CEILING_BIN_SIZE = Binner.GLOB_BIN_DEFAULT_SIZE # axis-specific, & height
 class CeilingBinner(Binner):
     center = np.array((np.NAN,np.NAN,np.NAN))
     size = np.array(DEFAULT_SIZE)

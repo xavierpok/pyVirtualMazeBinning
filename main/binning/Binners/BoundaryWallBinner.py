@@ -1,11 +1,12 @@
 import numpy as np
 
 from enum import Enum
+import main.binning.Binners.Binner
 from main.binning.Binners.Binner import Binner
 
 DEFAULT_SIZE = (30,5)
 DEFAULT_CENTER = (0,0,0)
-WALL_BIN_SIZE = np.array((1,1)) # axis-specific, & height
+WALL_BIN_SIZE = Binner.GLOB_BIN_DEFAULT_SIZE # axis-specific, & height
 class BoundaryWallbinner(Binner):
     center = np.array((np.NAN,np.NAN,np.NAN))
     size = np.array(DEFAULT_SIZE)
