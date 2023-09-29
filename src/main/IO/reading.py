@@ -7,12 +7,13 @@ import csv
 def read_numerical_vals(csv_path : str) -> np.array :
     with open (csv_path, 'r') as file :
         reader = csv.reader(file)
-        return np.array([row[0,8,9,10] for row in reader])
+        return np.array([[float(row[1]), float(row[9]), float(row[10]), float(row[11])]
+                         for row in reader if '' not in row[8:11]] )
  
 def read_event_type(csv_path : str) -> np.array :
     with open (csv_path, 'r') as file :
         reader = csv.reader(file)
-        return np.array([row[1] for row in reader])
+        return np.array([row[2] for row in reader if '' not in row[8:11]])
 
 class colNums(Enum) :
     TIME = 1
