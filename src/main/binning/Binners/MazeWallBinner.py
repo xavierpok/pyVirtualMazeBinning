@@ -1,7 +1,7 @@
 import numpy as np
 
 from enum import Enum
-from main.binning.Binners.Binner import Binner
+import Binner
 
 DEFAULT_SIZE = (5, 3.5, 5)
 PILLAR_BIN_SIZE = Binner.GLOB_BIN_DEFAULT_SIZE # axis-specific, & height
@@ -9,6 +9,13 @@ class MazePillarBinner(Binner):
     center = np.array((np.NAN,np.NAN,np.NAN))
     size = np.array(DEFAULT_SIZE)
     bin_cache = np.zeros((0,0,0))
+    
+    class WallFacing(Enum):
+        """Docstring TODO."""
+        NEG_X = 0
+        NEG_Z = 1
+        POS_X = 2
+        POS_Z = 3
     
     def __init__(self, center : tuple(int,int,int), size = DEFAULT_SIZE):
         #ASSUME IT'S A SQUARE FOR NOW FOR SIMPLICITY
@@ -23,7 +30,7 @@ class MazePillarBinner(Binner):
         
     
     
-    def add_to_bin(self, point : tuple(int,int,int)):
+    def add_to_bin(self, point : tuple(int,int,int)) -> tuple(int,int,int):
         #first, determine which wall the point lands on
         
         point_as_array = np.array(point)
@@ -49,8 +56,8 @@ class MazePillarBinner(Binner):
         relevant_axis = max_axis
         pos_on_wall = np.array((relative_coord[relevant_axis],relative_coord[1])) #relevant axis, y
         bin_pos = np.floor(pos_on_wall / PILLAR_BIN_SIZE)
-        self.bin_cache[bin_pos,face] += 1
-        
+        self.bin_cache[bin_pos + (face.value,)] += 1
+        return (bin_pos) + (face.value,)
         
     def get_all_binCounts(self):
         return self.bin_cache.ravel(order='C')
@@ -62,8 +69,8 @@ class MazePillarBinner(Binner):
 
 class WallFacing(Enum):
     """Docstring TODO."""
-    POS_X = 0
-    POS_Z = 1
-    NEG_X = 2
-    NEG_Z = 3
+    NEG_X = 0
+    NEG_Z = 1
+    POS_X = 2
+    POS_Z = 3
     
