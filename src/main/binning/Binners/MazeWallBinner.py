@@ -62,7 +62,7 @@ class MazeWallBinner(Binner.Binner):
         pos_to_corner = pos_on_wall.copy()
         pos_to_corner[0] += self.size[0]/2
         bin_pos = np.floor(pos_on_wall / PILLAR_BIN_SIZE).astype(int)
-        self.bin_cache[(bin_pos) + (face.value,)] += 1
+        self.bin_cache[tuple(bin_pos) + (face.value,)] += 1
         return tuple(bin_pos) + (face.value,)
         
     def get_all_binCounts(self):

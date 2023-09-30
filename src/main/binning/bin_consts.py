@@ -26,7 +26,7 @@ BOUNDARY_TO_BINNER = {f"wall_{num :02d}" : BINNERS.BOUNDARY_BINNER.value for num
 
 #this numbering is strange
 PILLAR_TO_BINNER = dict([(f"m_wall_{num}",BINNERS.PILLAR_BLUE_BINNER.value) for num in (6,10,21,29)] +
-                        [(f"m_wall_{num}",BINNERS.PILLAR_GREEN_BINNER.value) for num in (1,5,21,26)] +
+                        [(f"m_wall_{num}",BINNERS.PILLAR_GREEN_BINNER.value) for num in (1,5,25,26)] +
                         [(f"m_wall_{num}",BINNERS.PILLAR_YELLOW_BINNER.value) for num in (7,8,12,20)] +
                         [(f"m_wall_{num}",BINNERS.PILLAR_RED_BINNER.value) for num in (3,4,24,15)])
 
@@ -52,7 +52,10 @@ _PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
                                                 BINNERS.PILLAR_RED_BINNER.value)]
 
 def poster_matcher(point) :
-    return _PILLARS[np.argmax(np.abs(point - np.array([pillar.center for pillar in _PILLARS])))]
+    dists_to_pillars =[np.sqrt(np.sum(np.square(np.array(point) - np.array(pillar.center)))) 
+                       for pillar in _PILLARS]
+    
+    return _PILLARS[np.argmin(dists_to_pillars)]
 
 
 
