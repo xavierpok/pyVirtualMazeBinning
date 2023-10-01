@@ -4,7 +4,7 @@ import csv
 
 if __name__ == "__main__":
     path = r"C:\Users\Xavier\Documents\GitHub\csvDiffs\unityfile_eyelinkFix.csv"
-    savepath = r"C:\Users\Xavier\Documents\GitHub\csvDiffs\bins.csv"
+    savepath = r"C:\Users\Xavier\Documents\GitHub\csvDiffs\bins_2.csv"
     print(f"Starting on :{path}, saving to {savepath}")
     numerical_vals = reading.read_numerical_vals(path)
     print(numerical_vals)
@@ -13,9 +13,13 @@ if __name__ == "__main__":
     with open(savepath, 'w', newline ='') as file :
         writer = csv.writer(file)
         for i in range(numerical_vals.shape[0]) :
+            #TODO : vectorise determination of binners
+            #TODO : vectorise feeding into binners
+            #TODO : vectorise conversion into offset
+            
             timestamp = numerical_vals[i,0]
             hitloc = numerical_vals[i,1::]
-            print(timestamp,hitloc)
+            # print(timestamp,hitloc)
             name = obj_names[i]
             out_data = (timestamp,bin.add_to_bin(name,hitloc))
             writer.writerow(out_data)
