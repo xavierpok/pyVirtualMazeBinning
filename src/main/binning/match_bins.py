@@ -6,11 +6,22 @@ from . import bin_consts
 
 
 
+def apply_binners(binner_arr, point_arr) :
+    out_arr = np.zeros((binner_arr.shape[0],3))
+    # needs to be 3 as the output of add_to_bin has 3 cols, two for the bin, one for the face
+    
+    BINNER_LIST = (binner.value for binner in bin_consts.BINNERS)
+    #.value call needed to convert to the actual underlying class
+    for binner in BINNER_LIST :
+        relevant_points = np.equal(binner_arr,binner)
+        out_arr[relevant_points,:] = binner.add_to_bin(point_arr[relevant_points,:])
+    return out_arr
 
     
 def get_mappers(name_arr : np.array, point_arr : np.array) :
     poster_indices = (name_arr == "Poster") #get boolean arr of special areas
     
+
     name_series = pd.Series(name_arr)
     out_series = pd.Series(np.zeros(name_arr.shape))
     
@@ -19,15 +30,17 @@ def get_mappers(name_arr : np.array, point_arr : np.array) :
     
     # now, handle poster indices
     
-    out_series[poster_indices] = find_closest_mazewall(point_arr[poster_indices])
+    out_arr = out_series.to_numpy()
+    
+    out_arr[poster_indices] = find_closest_mazewall(point_arr[poster_indices])
 
-    return out_series.to_numpy()
+    return out_arr
 
 
 def find_closest_mazewall(point_arr : np.array) :
     # calc array of distances and do minning
 
-    pillar_centers = np.vstack((pillar.center for pillar in bin_consts.PILLARS))
+    pillar_centers = np.vstack(tuple(pillar.center for pillar in bin_consts.PILLARS))
     
     pillar_centers = pillar_centers.T.reshape((1,3,-1)) 
     #move all the centers into the 3rd dimension
@@ -53,4 +66,4 @@ def find_closest_mazewall(point_arr : np.array) :
     
     #1-d index array obtained, then just index!
     
-    return pd.Series(np.array(bin_consts.PILLARS)[min_indexes])
+    return np.array(bin_consts.PILLARS)[min_indexes]

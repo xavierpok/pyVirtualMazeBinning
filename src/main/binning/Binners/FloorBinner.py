@@ -22,6 +22,7 @@ class FloorBinner(Binner.Binner):
         cache_width = np.ceil(size[0] / FLOOR_BIN_SIZE[0]).astype(int)
         cache_height = np.ceil(size[1] / FLOOR_BIN_SIZE[1]).astype(int)
         self.bin_cache = np.zeros((cache_width,cache_height,1))
+        self.corner = (self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2)
         # for four walls
         
     
@@ -35,7 +36,7 @@ class FloorBinner(Binner.Binner):
 
         bin_pos_arr = np.floor(relative_point_arr / np.array(FLOOR_BIN_SIZE).reshape(1,-1)).astype(int)
 
-        self.bin_cache[bin_pos_arr] += 1
+        # self.bin_cache[bin_pos_arr] += 1
 
         #add additional face col as floor has 1 face, i.e. face will always be index 0
         face_col = np.zeros((bin_pos_arr.shape[0],1))
