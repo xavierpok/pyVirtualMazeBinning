@@ -22,21 +22,28 @@ class FloorBinner(Binner.Binner):
         cache_width = np.ceil(size[0] / FLOOR_BIN_SIZE[0]).astype(int)
         cache_height = np.ceil(size[1] / FLOOR_BIN_SIZE[1]).astype(int)
         self.bin_cache = np.zeros((cache_width,cache_height,1))
+        self.corner = (self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2)
         # for four walls
         
     
     
-    def add_to_bin(self, point : tuple) -> tuple:
+    def add_to_bin(self, point_arr : tuple) -> tuple:
        # Easy case : Will only ever need to consider x & z
        
-       # convention : use x as width, z as height
-       
-        relative_point_floor = (np.array(point) - self.corner)[[0,2]]
-       
-        bin_pos = np.floor(relative_point_floor / FLOOR_BIN_SIZE).astype(int)
+        # convention : use x as width, z as height
 
-        self.bin_cache[bin_pos] += 1
-        return tuple(bin_pos) + (0,)
+        relative_point_arr = (point_arr - self.center.reshape(1,-1))[:,[0,2]]
+
+        bin_pos_arr = np.floor(relative_point_arr / np.array(FLOOR_BIN_SIZE).reshape(1,-1)).astype(int)
+
+        # self.bin_cache[bin_pos_arr] += 1
+
+        #add additional face col as floor has 1 face, i.e. face will always be index 0
+        face_col = np.zeros((bin_pos_arr.shape[0],1))
+
+        return np.hstack((bin_pos_arr,face_col))
+
+
         
         
     def get_all_binCounts(self):

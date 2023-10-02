@@ -46,16 +46,16 @@ _OFFSETS = _OFFSETS[0:len(_SIZES)]
 BINNER_TO_BASE_OFFSET = {binner : offset for (binner,offset) in zip(_BINNER_LIST,_OFFSETS)}
 
 
-_PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
+PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
                                                 BINNERS.PILLAR_GREEN_BINNER.value,
                                                 BINNERS.PILLAR_YELLOW_BINNER.value,
                                                 BINNERS.PILLAR_RED_BINNER.value)]
 
 def poster_matcher(point) :
     dists_to_pillars =[np.sqrt(np.sum(np.square(np.array(point) - np.array(pillar.center)))) 
-                       for pillar in _PILLARS]
+                       for pillar in PILLARS]
     
-    return _PILLARS[np.argmin(dists_to_pillars)]
+    return PILLARS[np.argmin(dists_to_pillars)]
 
 
 
