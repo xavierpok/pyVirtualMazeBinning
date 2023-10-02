@@ -27,40 +27,44 @@ class BoundaryWallBinner(Binner.Binner):
         
     
     
-    def add_to_bin(self, point : tuple) -> tuple:
+    def add_to_bin(self, point_arr : np.array) -> tuple:
         #first, determine which wall the point lands on
         
-        point_as_array = np.array(point)
+
         
-        relative_coord = point_as_array - self.center
-        
+
+        relative_point_arr = (point_arr - self.center)
         # There are four walls, two perpendicular to X, two perpendicular to Z
         # If the magnitude of the relative coord is highest in X, must be one of the 2 X-walls
         # and so on for Z
-        relative_no_y = np.array((relative_coord[0],relative_coord[2]))
-        max_axis = np.argmax(np.abs(relative_no_y))
-        axis_sign = np.sign(relative_coord[max_axis])
-        if axis_sign == 0 :
-            print(f"Error encountered with point : {point} with binner {self} (Center at {self.center}), " + 
-                  f"relative coord {relative_coord}")
-            pass
-        
-        if max_axis == 0 :
-            face = WallFacing.POS_X if axis_sign > 0 else WallFacing.NEG_X
-        elif max_axis == 1 :
-            face = WallFacing.POS_Z if axis_sign > 0 else WallFacing.NEG_Z
-        else : 
-            face = WallFacing.POS_X
-            print(f"Max axis could not be found in {self}, point was {point_as_array}")
+        relative_no_y = relative_point_arr[:,[0,2]]
+        max_axis = np.argmax(np.abs(relative_no_y),axis=1)
+        axis_sign = np.sign(relative_point_arr[:,max_axis])
+        if np.all(axis_sign) != 0 :
+            print(f"Error encountered with point(s) : indices {axis_sign[axis_sign != 0]} with binner {self}" +
+                "(Center at {self.center})," + 
+                  f"relative coord(s) {relative_point_arr[axis_sign != 0]}")
+            
+        face_arr = np.zeros((relative_point_arr[0],1))
+        face_arr[np.logical_and(max_axis == 0, axis_sign > 0)] = WallFacing.POS_X.value
+        face_arr[np.logical_and(max_axis == 0, axis_sign <= 0)] = WallFacing.NEG_X.value
+        face_arr[np.logical_and(max_axis == 1, axis_sign > 0)] = WallFacing.POS_Z.value
+        face_arr[np.logical_and(max_axis == 1, axis_sign <= 0)] = WallFacing.NEG_Z.value
+
         
         #Now, fit into the wall 
         relevant_axis = max_axis
-        pos_on_wall = np.array((relative_coord[relevant_axis],relative_coord[1])) #relevant axis, y
+        pos_on_wall = np.hstack((relative_point_arr[:,relevant_axis],relative_point_arr[:,1]))
+        #make the pos a vertical stack of (relavant_axis,y)
+        
+        
         pos_to_corner = pos_on_wall.copy()
-        pos_to_corner[0] += self.size[0]/2
-        bin_pos = np.floor(pos_on_wall / WALL_BIN_SIZE).astype(int)
-        self.bin_cache[tuple(bin_pos) + (face.value,)] += 1
-        return tuple(bin_pos) + (face.value,)
+        pos_to_corner[:,0] += self.size[:,0]/2
+        #add to be wrt to corner
+        bin_pos = np.floor(pos_to_corner / WALL_BIN_SIZE).astype(int)
+        bin_and_face_pos = np.hstack((bin_pos,face_arr))
+        self.bin_cache[bin_and_face_pos] += 1
+        return bin_and_face_pos
         
         
     def get_all_binCounts(self):

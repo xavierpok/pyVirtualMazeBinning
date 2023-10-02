@@ -19,7 +19,8 @@ if __name__ == "__main__":
         print("Got mappers successfully")
         for i in range(numerical_vals.shape[0]) :
             #TODO : vectorise determination of binners DONE
-            #TODO : vectorise feeding into binners
+            #TODO : modify binners to be vectorised DONE
+            #TODO : vectorise feeding into binners 
             #TODO : vectorise conversion into offset
             
             timestamp = numerical_vals[i,0]

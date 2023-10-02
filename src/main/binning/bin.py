@@ -6,7 +6,7 @@ from .bin_consts import BINNER_TO_BASE_OFFSET, OBJ_TO_BINNER,poster_matcher
 
 def ravel_bin_num(binner, rel_bin_num : tuple) :
     # bounds can be found via bin_cache of hte respective binner
-    print(rel_bin_num,binner.bin_cache.shape[0],binner)
+    # print(rel_bin_num,binner.bin_cache.shape[0],binner)
     return rel_bin_num[0] + binner.bin_cache.shape[0] * rel_bin_num[1] + \
                 binner.bin_cache.shape[0] * binner.bin_cache.shape[1] * rel_bin_num[2]
 

@@ -24,15 +24,23 @@ class CeilingBinner(Binner.Binner):
         
     
     
-    def add_to_bin(self, point : tuple) -> tuple:
+    def add_to_bin(self, point_arr : np.array) -> tuple:
         # Easy case : Will only ever need to consider x & z
         
         # convention : use x as width, z as height
         
-        relative_point_floor = (np.array(point) - self.center)[[0,2]]
-        bin_pos = np.floor(relative_point_floor / CEILING_BIN_SIZE).astype(int)
-        self.bin_cache[bin_pos] += 1
-        return tuple(bin_pos) + (0,)
+        #reshape needed to allow for broadcasting 
+        #axis 0 indexes rows, axis 1 here pulls only x,z coords
+        relative_point_arr = (point_arr - self.center.reshape(1,-1))[:,[0,2]]
+       
+        bin_pos_arr = np.floor(relative_point_arr / np.array(CEILING_BIN_SIZE).reshape(1,-1)).astype(int)
+        
+        self.bin_cache[bin_pos_arr] += 1
+        
+        #add additional face col as ceiling has 1 face, i.e. face will always be index 0
+        face_col = np.zeros((bin_pos_arr.shape[0],1))
+        
+        return np.hstack((bin_pos_arr,face_col))
         
         
     def get_all_binCounts(self):
