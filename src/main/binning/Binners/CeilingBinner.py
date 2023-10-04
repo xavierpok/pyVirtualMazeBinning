@@ -20,7 +20,7 @@ class CeilingBinner(Binner.Binner):
         cache_width = np.ceil(size[0] / CEILING_BIN_SIZE[0]).astype(int)
         cache_height = np.ceil(size[1] / CEILING_BIN_SIZE[1]).astype(int)
         self.bin_cache = np.zeros((cache_width,cache_height,1))
-        self.corner = (self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2)
+        self.corner = np.array((self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2))
 
         
     
@@ -32,7 +32,7 @@ class CeilingBinner(Binner.Binner):
         
         #reshape needed to allow for broadcasting 
         #axis 0 indexes rows, axis 1 here pulls only x,z coords
-        relative_point_arr = (point_arr - self.center.reshape(1,-1))[:,[0,2]]
+        relative_point_arr = (point_arr - self.corner.reshape(1,-1))[:,[0,2]]
          
         bin_pos_arr = np.floor(relative_point_arr / np.array(CEILING_BIN_SIZE).reshape(1,-1)).astype(int)
         
