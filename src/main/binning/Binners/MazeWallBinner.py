@@ -10,12 +10,6 @@ class MazeWallBinner(Binner.Binner):
     size = np.array(DEFAULT_SIZE)
     bin_cache = np.zeros((0,0,0))
     
-    class WallFacing(Enum):
-        """Docstring TODO."""
-        NEG_X = 0
-        NEG_Z = 1
-        POS_X = 2
-        POS_Z = 3
     
     def __init__(self, center : tuple, size = DEFAULT_SIZE):
         #ASSUME IT'S A SQUARE FOR NOW FOR SIMPLICITY
@@ -26,6 +20,7 @@ class MazeWallBinner(Binner.Binner):
         cache_width = np.ceil(size[0] / PILLAR_BIN_SIZE[0]).astype(int)
         cache_height = np.ceil(size[1] / PILLAR_BIN_SIZE[1]).astype(int)
         self.bin_cache = np.zeros((cache_width,cache_height,4))
+        self.corner = np.array((self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2))
         # for four walls
         
     
@@ -42,7 +37,7 @@ class MazeWallBinner(Binner.Binner):
         # and so on for Z
         relative_no_y = relative_point_arr[:,[0,2]]
         max_axis = np.argmax(np.abs(relative_no_y),axis=1)
-        relative_no_y_maxes = np.max(np.abs(relative_no_y),axis=1)
+        relative_no_y_maxes = np.take_along_axis(relative_no_y,np.argmax(np.abs(relative_no_y),axis=1).reshape(-1,1),axis=1).reshape(-1)
         axis_sign = np.sign(relative_no_y_maxes)
         if np.any(axis_sign) == 0 :
             print(f"Error encountered with point(s) : indices {axis_sign[axis_sign == 0]} with binner {self}" +
@@ -57,16 +52,28 @@ class MazeWallBinner(Binner.Binner):
 
         
         #Now, fit into the wall 
-
-        pos_on_wall = np.hstack((relative_no_y_maxes.reshape(-1,1),relative_point_arr[:,1].reshape(-1,1)))
+        relative_no_y_mins =  np.take_along_axis(relative_no_y,np.argmin(np.abs(relative_no_y),axis=1).reshape(-1,1),axis=1).reshape(-1)
+        pos_on_wall = np.hstack((relative_no_y_mins.reshape(-1,1),relative_point_arr[:,1].reshape(-1,1)))
         #make the pos a vertical stack of (relavant_axis,y)
-        
         
         pos_to_corner = pos_on_wall.copy()
         pos_to_corner[:,0] += self.size[0]/2
         #add to be wrt to corner
+        
+        #Transform to ensure correct facing
+        #invert if POS_X, NEG_Z
+        #I'm not entirely sure why, but that fufils the convention
+        indices_to_invert = np.logical_or(face_arr == WallFacing.POS_X.value,face_arr == WallFacing.NEG_Z.value).reshape(-1)
+        to_invert =  pos_to_corner[indices_to_invert,0]
+        inverted = self.size[0] - to_invert
+        pos_to_corner[indices_to_invert,0] = inverted
+            
+        
         bin_pos = np.floor(pos_to_corner / PILLAR_BIN_SIZE).astype(int)
-        bin_and_face_pos = np.hstack((bin_pos,face_arr))
+        bin_and_face_pos = np.zeros((bin_pos.shape[0],3))
+        bin_and_face_pos[:,0] = bin_pos[:,0]
+        bin_and_face_pos[:,1] = face_arr[:,0]
+        bin_and_face_pos[:,2] = bin_pos[:,1]
         # self.bin_cache[bin_and_face_pos] += 1
         return bin_and_face_pos
             
@@ -81,7 +88,7 @@ class MazeWallBinner(Binner.Binner):
 class WallFacing(Enum):
     """Docstring TODO."""
     NEG_X = 0
-    NEG_Z = 1
+    NEG_Z = 3
     POS_X = 2
-    POS_Z = 3
+    POS_Z = 1
     
