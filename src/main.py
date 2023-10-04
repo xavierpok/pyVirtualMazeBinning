@@ -1,10 +1,12 @@
 from main.IO import reading
 from main.binning import bin
 import csv
+import sys
 
 if __name__ == "__main__":
-    path = r"C:\Users\Xavier\Documents\GitHub\csvDiffs\unityfile_eyelinkFix.csv"
-    savepath = r"C:\Users\Xavier\Documents\GitHub\csvDiffs\bins_2.csv"
+    path = sys.argv[1]
+    savepath = sys.argv[2]
+
     print(f"Starting on :{path}, saving to {savepath}")
     numerical_vals = reading.read_numerical_vals(path)
     print(numerical_vals)
