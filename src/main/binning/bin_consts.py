@@ -5,8 +5,9 @@ from enum import Enum
 from .Binners import FloorBinner,CeilingBinner,BoundaryWallBinner,MazeWallBinner,ImageBinner
 import numpy as np
 class BINNERS(Enum):
-    #THE ORDER IS IMPORTANT BECAUSE I'M BAD AT CODING
-    IMAGE_BINNER = ImageBinner.ImageBinner()
+    #THE ORDER IS IMPORTANT HERE AND ONLY HERE BECAUSE I'M BAD AT CODING
+    CUE_BINNER = ImageBinner.ImageBinner()
+    HINT_BINNER = ImageBinner.ImageBinner() #2 different instances for no real reason
     FLOOR_BINNER = FloorBinner.FloorBinner()
     CEILING_BINNER = CeilingBinner.CeilingBinner()
     BOUNDARY_BINNER = BoundaryWallBinner.BoundaryWallBinner()
@@ -33,29 +34,30 @@ PILLAR_TO_BINNER = dict([(f"m_wall_{num}",BINNERS.PILLAR_BLUE_BINNER.value) for 
 # print(BINNERS.CEILING_BINNER.value)
 OBJ_TO_BINNER = { "Ceiling" : BINNERS.CEILING_BINNER.value, 
                   "Ground" : BINNERS.FLOOR_BINNER.value,
-                  "CueImage" : BINNERS.IMAGE_BINNER.value,
-                  "HintImage" : BINNERS.IMAGE_BINNER.value
+                  "CueImage" : BINNERS.CUE_BINNER.value,
+                  "HintImage" : BINNERS.HINT_BINNER.value
                   };OBJ_TO_BINNER.update(BOUNDARY_TO_BINNER);OBJ_TO_BINNER.update(PILLAR_TO_BINNER)
 
 _BINNER_LIST = [e.value for e in BINNERS]
 _SIZES = [np.prod(binner.bin_cache.shape) for binner in _BINNER_LIST]
-_OFFSETS = [0]
+_OFFSETS = [1] #bins are 1-indexed
 for size in _SIZES :
-    _OFFSETS.append(sum(_OFFSETS) + size)
+    _OFFSETS.append(_OFFSETS[-1] + size)
 _OFFSETS = _OFFSETS[0:len(_SIZES)]
+
 BINNER_TO_BASE_OFFSET = {binner : offset for (binner,offset) in zip(_BINNER_LIST,_OFFSETS)}
 
 
-_PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
+PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
                                                 BINNERS.PILLAR_GREEN_BINNER.value,
                                                 BINNERS.PILLAR_YELLOW_BINNER.value,
                                                 BINNERS.PILLAR_RED_BINNER.value)]
 
 def poster_matcher(point) :
     dists_to_pillars =[np.sqrt(np.sum(np.square(np.array(point) - np.array(pillar.center)))) 
-                       for pillar in _PILLARS]
+                       for pillar in PILLARS]
     
-    return _PILLARS[np.argmin(dists_to_pillars)]
+    return PILLARS[np.argmin(dists_to_pillars)]
 
 
 
