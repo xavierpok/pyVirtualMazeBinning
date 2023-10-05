@@ -5,10 +5,14 @@ import csv
 from main.binning.match_bins import get_mappers,apply_binners
 import numpy as np
 import sys
-
+import os
 if __name__ == "__main__":
     path = sys.argv[1]
-    savepath = sys.argv[2]
+    if len(sys.argv) >= 3 :
+        savepath = sys.argv[2]
+    else :
+        path_basename = f"{os.path.splitext(os.path.basename(path))[0]}"
+        savepath = os.path.join(os.path.dirname(path),f"{path_basename}_bins.csv")
 
     print(f"Starting on :{path}, saving to {savepath}")
     numerical_vals = reading.read_numerical_vals(path)
@@ -26,7 +30,7 @@ if __name__ == "__main__":
     abs_bin_arr = bin.get_abs_bin(mappers, rel_bin_arr) # SLOW BECAUSE I HAVEN'T FIGURED OUT HOW TO VECTORISE THIS FULLY
     print("Converted relative to abs bin successfully")
     save_arr = np.hstack((timestamps.reshape(-1,1),abs_bin_arr.reshape(-1,1)))
-    np.savetxt(savepath,save_arr)
+    np.savetxt(savepath,save_arr,fmt='%d',delimiter=',')
     # with open(savepath, 'w', newline ='') as file :
     #     # writer = csv.writer(file)
     #     for i in range(numerical_vals.shape[0]) :
