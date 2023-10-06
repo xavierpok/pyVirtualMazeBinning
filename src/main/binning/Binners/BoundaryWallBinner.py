@@ -20,8 +20,8 @@ class BoundaryWallBinner(Binner.Binner):
         self.size = np.array(size)
         
         #make assumption it's a square
-        cache_width = np.ceil(size[0] / WALL_BIN_SIZE[0]).astype(int)
-        cache_height = np.ceil(size[1] / WALL_BIN_SIZE[1]).astype(int)
+        cache_width = np.floor(size[0] / WALL_BIN_SIZE[0]).astype(int)
+        cache_height = np.floor(size[1] / WALL_BIN_SIZE[1]).astype(int)
         self.bin_cache = np.zeros((cache_width,4,cache_height))
         # for four walls
         # In order of significance (least - biggest)

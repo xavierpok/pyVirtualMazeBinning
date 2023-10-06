@@ -17,10 +17,12 @@ class MazeWallBinner(Binner.Binner):
         self.size = np.array(size)
         
         #make assumption it's a square
-        cache_width = np.ceil(size[0] / PILLAR_BIN_SIZE[0]).astype(int)
-        cache_height = np.ceil(size[1] / PILLAR_BIN_SIZE[1]).astype(int)
-        self.bin_cache = np.zeros((cache_width,cache_height,4))
-        self.corner = np.array((self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2))
+        cache_width = np.floor(size[0] / PILLAR_BIN_SIZE[0]).astype(int)
+        cache_height = np.floor(size[1] / PILLAR_BIN_SIZE[1]).astype(int)
+        self.bin_cache = np.zeros((cache_width,4,cache_height))
+        # for four walls
+        # In order of significance (least - biggest)
+        # order by width location, facing, then height.
         # for four walls
         
     
@@ -64,7 +66,7 @@ class MazeWallBinner(Binner.Binner):
         #invert if POS_X, NEG_Z
         #I'm not entirely sure why, but that fufils the convention
         indices_to_invert = np.logical_or(face_arr == WallFacing.POS_X.value,face_arr == WallFacing.NEG_Z.value).reshape(-1)
-        to_invert =  pos_to_corner[indices_to_invert,0]
+        to_invert = pos_to_corner[indices_to_invert,0]
         inverted = self.size[0] - to_invert
         pos_to_corner[indices_to_invert,0] = inverted
             

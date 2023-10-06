@@ -17,9 +17,9 @@ class CeilingBinner(Binner.Binner):
         self.size = np.array(size)
         
         #make assumption it's a square
-        cache_width = np.ceil(size[0] / CEILING_BIN_SIZE[0]).astype(int)
-        cache_height = np.ceil(size[1] / CEILING_BIN_SIZE[1]).astype(int)
-        self.bin_cache = np.zeros((cache_width,cache_height,1))
+        cache_width = np.floor(size[0] / CEILING_BIN_SIZE[0]).astype(int)
+        cache_height = np.floor(size[1] / CEILING_BIN_SIZE[1]).astype(int)
+        self.bin_cache = np.zeros((cache_width,1,cache_height))
         self.corner = np.array((self.center[0] - self.size[0]/2,self.center[1],self.center[2] - self.size[1]/2))
 
         

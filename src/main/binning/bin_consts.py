@@ -11,10 +11,10 @@ class BINNERS(Enum):
     FLOOR_BINNER = FloorBinner.FloorBinner()
     CEILING_BINNER = CeilingBinner.CeilingBinner()
     BOUNDARY_BINNER = BoundaryWallBinner.BoundaryWallBinner()
-    PILLAR_BLUE_BINNER = MazeWallBinner.MazeWallBinner(center=(-4.95,0,-4.95))
     PILLAR_GREEN_BINNER = MazeWallBinner.MazeWallBinner(center=(4.95,0,-4.95))
-    PILLAR_YELLOW_BINNER = MazeWallBinner.MazeWallBinner(center=(-4.95,0,4.95))
+    PILLAR_BLUE_BINNER = MazeWallBinner.MazeWallBinner(center=(-4.95,0,-4.95))
     PILLAR_RED_BINNER = MazeWallBinner.MazeWallBinner(center=(4.95,0,4.95))
+    PILLAR_YELLOW_BINNER = MazeWallBinner.MazeWallBinner(center=(-4.95,0,4.95))
 
 BOUNDARY_TO_BINNER = {f"wall_{num :02d}" : BINNERS.BOUNDARY_BINNER.value for num in range(1,25)} # 25 walls in total from 1-24
 
@@ -47,11 +47,11 @@ _OFFSETS = _OFFSETS[0:len(_SIZES)]
 
 BINNER_TO_BASE_OFFSET = {binner : offset for (binner,offset) in zip(_BINNER_LIST,_OFFSETS)}
 
-
-PILLARS = [pillar for pillar in (BINNERS.PILLAR_BLUE_BINNER.value,
-                                                BINNERS.PILLAR_GREEN_BINNER.value,
-                                                BINNERS.PILLAR_YELLOW_BINNER.value,
-                                                BINNERS.PILLAR_RED_BINNER.value)]
+#this one controls relative order of binning
+PILLARS = [pillar for pillar in (BINNERS.PILLAR_GREEN_BINNER.value,
+                                                BINNERS.PILLAR_BLUE_BINNER.value,
+                                                BINNERS.PILLAR_RED_BINNER.value,
+                                                BINNERS.PILLAR_YELLOW_BINNER.value)]
 
 def poster_matcher(point) :
     dists_to_pillars =[np.sqrt(np.sum(np.square(np.array(point) - np.array(pillar.center)))) 

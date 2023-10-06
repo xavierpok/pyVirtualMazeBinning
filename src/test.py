@@ -5,9 +5,9 @@ import csv
 from main.binning.match_bins import get_mappers,apply_binners
 import numpy as np
 if __name__ == "__main__":
-    path = "src\test_data\bintocoords.csv"
-    savepath =" src\test_data\results.csv"
-    errorpath = "src\test_data\errors.csv"
+    path = r"src\test_data\bintocoords.csv"
+    savepath =r"src\test_data\results.csv"
+    errorpath = r"src\test_data\errors.csv"
     print(f"Starting test on : \n{path},\n saving to {savepath}")
     numerical_vals = np.loadtxt(path,usecols=[0,1,2,3],skiprows=1,delimiter=',')
     print(numerical_vals)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     
     if (np.any(save_arr[:,0] != save_arr[:,1])) :
         print(f"NOTE : ERROR IN OUTPUT. Saved to {errorpath}")
-        np.savetxt(errorpath,save_arr[save_arr[:,0] != save_arr[:,1],:])
+        np.savetxt(errorpath,save_arr[save_arr[:,0] != save_arr[:,1],:],delimiter=',',fmt='%d')
     else : 
         print(f"Tested, no discrepancies.")
         
