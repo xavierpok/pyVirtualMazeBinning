@@ -7,8 +7,8 @@ import numpy as np
 import sys
 import os
 if __name__ == "__main__":
-    #path = sys.argv[1]
-    path = r'C:\Users\Xavier\Documents\GitHub\csvDiffs\unityfile_eyelinkFix.csv'
+    path = sys.argv[1]
+    # path = r'C:\Users\Xavier\Documents\GitHub\csvDiffs\unityfile_eyelinkFix.csv'
     if len(sys.argv) >= 3 :
         savepath = sys.argv[2]
     else :
