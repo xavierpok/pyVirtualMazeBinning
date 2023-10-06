@@ -3,7 +3,7 @@ import numpy as np
 from enum import Enum
 from . import Binner
 
-DEFAULT_SIZE = (5, 3.5, 5)
+DEFAULT_SIZE = (5, 3, 5)
 PILLAR_BIN_SIZE = Binner.GLOB_BIN_DEFAULT_SIZE # axis-specific, & height
 class MazeWallBinner(Binner.Binner):
     center = np.array((np.NAN,np.NAN,np.NAN))
