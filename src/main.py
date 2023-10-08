@@ -12,15 +12,15 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3 :
         savepath = sys.argv[2]
     else :
-        path_basename = f"{os.path.splitext(os.path.basename(path))[0]}"
-        savepath = os.path.join(os.path.dirname(path),f"{path_basename}_bins.csv")
+        # path_basename = f"{os.path.splitext(os.path.basename(path))[0]}"
+        savepath = os.path.join(os.path.dirname(path),f"binData.csv")
 
     print(f"Starting on :{path}, saving to {savepath}")
-    numerical_vals = reading.read_numerical_vals(path)
+    numerical_vals = reading.read_numerical_vals(path) #reading slow as not vectorised
     # print(numerical_vals)
     hitlocs = numerical_vals[:,1::]
     timestamps = numerical_vals[:,0]
-    obj_names = reading.read_event_type(path)
+    obj_names = reading.read_event_type(path) #reading slow as not vectorised
     # print(obj_names)
     mappers = get_mappers(obj_names,hitlocs)
     print("Got mappers successfully")
