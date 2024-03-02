@@ -8,7 +8,13 @@ import pandas as pd
 def ravel_bin_num(binner_arr, rel_bin_num_arr : np.array) :
     # bounds can be found via bin_cache of hte respective binner
     # print(rel_bin_num,binner.bin_cache.shape[0],binner)
-    get_binner_shape = lambda binner : np.array(binner.bin_cache.shape)
+    # get_binner_shape = lambda binner : np.array(binner.bin_cache.shape)
+    
+    def get_binner_shape(binner) :
+        if type(binner) == float :
+            # print (binner)
+            return np.array((0,0,0))
+        return np.array(binner.bin_cache.shape)
     
     # binner_series = pd.Series(binner_arr)
     # binner_shape_arr =  binner_series.map(get_binner_shape).to_numpy()
@@ -19,7 +25,7 @@ def ravel_bin_num(binner_arr, rel_bin_num_arr : np.array) :
     #     if i > 1050000:
     #         print(binner,i)
     #     a = binner.bin_cache.shape
-    binner_shape_arr = np.array([get_binner_shape(binner) for binner in binner_arr])
+    binner_shape_arr = np.array([get_binner_shape(binner.value) for binner in binner_arr])
     
     return rel_bin_num_arr[:,0] + binner_shape_arr[:,0] * rel_bin_num_arr[:,1] + \
                binner_shape_arr[:,0] * binner_shape_arr[:,1] * rel_bin_num_arr[:,2]

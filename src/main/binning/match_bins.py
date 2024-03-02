@@ -10,29 +10,51 @@ def apply_binners(binner_arr, point_arr) :
     out_arr = np.zeros((binner_arr.shape[0],3))
     # needs to be 3 as the output of add_to_bin has 3 cols, two for the bin, one for the face
     
-    BINNER_LIST = (binner.value for binner in bin_consts.BINNERS)
+    BINNER_LIST = (binner for binner in bin_consts.BINNERS)
     #.value call needed to convert to the actual underlying class
     for binner in BINNER_LIST :
         relevant_points = np.equal(binner_arr,binner)
-        out_arr[relevant_points,:] = binner.add_to_bin(point_arr[relevant_points,:])
+        out_arr[relevant_points,:] = binner.value.add_to_bin(point_arr[relevant_points,:])
     return out_arr
 
     
 def get_mappers(name_arr : np.array, point_arr : np.array) :
-    poster_indices = (name_arr == "Poster") #get boolean arr of special areas
-    
 
+    
+    
     name_series = pd.Series(name_arr)
     out_series = pd.Series(np.zeros(name_arr.shape))
     
-    out_series[np.logical_not(poster_indices)] = \
-        name_series[np.logical_not(poster_indices)].map(bin_consts.OBJ_TO_BINNER)
+    def get_mapper(obj_name : str) :
+        if "NaN" in obj_name :
+            return bin_consts.BINNERS.NAN_BINNER
+        if "BlueWall" in obj_name :
+            return bin_consts.BINNERS.PILLAR_BLUE_BINNER
+        if "GreenWall" in obj_name :
+            return bin_consts.BINNERS.PILLAR_GREEN_BINNER
+        if "RedWall" in obj_name :
+            return bin_consts.BINNERS.PILLAR_RED_BINNER
+        if "YellowWall" in obj_name :
+            return bin_consts.BINNERS.PILLAR_YELLOW_BINNER
+        if "Ground" in obj_name :
+            return bin_consts.BINNERS.FLOOR_BINNER
+        if "Ceiling" in obj_name :
+            return bin_consts.BINNERS.CEILING_BINNER
+        if "WallsPerimeter" in obj_name :
+            return bin_consts.BINNERS.BOUNDARY_BINNER
+        if "CueImage" in obj_name :
+            return bin_consts.BINNERS.CUE_BINNER
+        if "HintImage" in obj_name :
+            return bin_consts.BINNERS.HINT_BINNER
+        else :
+            raise Exception("Undefined name, exiting") 
+    
+    out_series = \
+        name_series.map(get_mapper)
     
     # now, handle poster indices
     
     out_arr = out_series.to_numpy()
-    
-    out_arr[poster_indices] = find_closest_mazewall(point_arr[poster_indices])
 
     return out_arr
 

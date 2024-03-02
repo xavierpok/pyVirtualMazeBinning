@@ -2,10 +2,11 @@
 
 from enum import Enum
 
-from .Binners import FloorBinner,CeilingBinner,BoundaryWallBinner,MazeWallBinner,ImageBinner
+from .Binners import FloorBinner,CeilingBinner,BoundaryWallBinner,MazeWallBinner,ImageBinner,NanBinner
 import numpy as np
 class BINNERS(Enum):
     #THE ORDER IS IMPORTANT HERE AND ONLY HERE BECAUSE I'M BAD AT CODING
+    NAN_BINNER = NanBinner.NanBinner()
     CUE_BINNER = ImageBinner.ImageBinner()
     HINT_BINNER = ImageBinner.ImageBinner() #2 different instances for no real reason
     FLOOR_BINNER = FloorBinner.FloorBinner()
@@ -27,21 +28,21 @@ BOUNDARY_TO_BINNER = {f"wall_{num :02d}" : BINNERS.BOUNDARY_BINNER.value for num
 #Red : m_wall 3,4,24,15
 
 #this numbering is strange
-PILLAR_TO_BINNER = dict([(f"m_wall_{num}",BINNERS.PILLAR_GREEN_BINNER.value) for num in (1,5,25,26)] +
-                        [(f"m_wall_{num}",BINNERS.PILLAR_BLUE_BINNER.value) for num in (6,10,21,29)] +
-                        [(f"m_wall_{num}",BINNERS.PILLAR_RED_BINNER.value) for num in (3,4,24,15)] +
-                        [(f"m_wall_{num}",BINNERS.PILLAR_YELLOW_BINNER.value) for num in (7,8,12,20)])
+PILLAR_TO_BINNER = dict([(f"{dir}GreenWall_GreenPillar",BINNERS.PILLAR_GREEN_BINNER.value) for dir in ("PosX","NegZ","NegX","PosZ")] +
+                        [(f"{dir}BlueWall_BluePillar",BINNERS.PILLAR_BLUE_BINNER.value) for dir in ("PosX","NegZ","NegX","PosZ")] +
+                        [(f"{dir}RedWall_RedPillar",BINNERS.PILLAR_RED_BINNER.value) for dir in ("PosX","NegZ","NegX","PosZ")] +
+                        [(f"{dir}YellowWall_YellowPillar",BINNERS.PILLAR_YELLOW_BINNER.value) for dir in ("PosX","NegZ","NegX","PosZ")])
 
-# print(BINNERS.CEILING_BINNER.value)
+
 OBJ_TO_BINNER = { "CueImage" : BINNERS.CUE_BINNER.value,
                   "HintImage" : BINNERS.HINT_BINNER.value,
                   "Ceiling" : BINNERS.CEILING_BINNER.value, 
                   "Ground" : BINNERS.FLOOR_BINNER.value
                   };OBJ_TO_BINNER.update(BOUNDARY_TO_BINNER);OBJ_TO_BINNER.update(PILLAR_TO_BINNER)
 
-_BINNER_LIST = [e.value for e in BINNERS]
-_SIZES = [np.prod(binner.bin_cache.shape) for binner in _BINNER_LIST]
-_OFFSETS = [1] #bins are 1-indexed
+_BINNER_LIST = [e for e in BINNERS]
+_SIZES = [np.prod(binner.value.bin_cache.shape) for binner in _BINNER_LIST]
+_OFFSETS = [0] #bins are 0-indexed
 for size in _SIZES :
     _OFFSETS.append(_OFFSETS[-1] + size)
 _OFFSETS = _OFFSETS[0:len(_SIZES)]

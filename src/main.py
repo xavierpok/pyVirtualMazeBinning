@@ -6,26 +6,29 @@ from main.binning.match_bins import get_mappers,apply_binners
 import numpy as np
 import sys
 import os
-if __name__ == "__main__":
-    path = sys.argv[1]
-    # path = r'C:\Users\Xavier\Documents\GitHub\csvDiffs\unityfile_eyelinkFix.csv'
-    if len(sys.argv) >= 3 :
-        savepath = sys.argv[2]
-    else :
-        # path_basename = f"{os.path.splitext(os.path.basename(path))[0]}"
-        savepath = os.path.join(os.path.dirname(path),f"binData.csv")
 
-    print(f"Starting on :{path}, saving to {savepath}")
-    numerical_vals = reading.read_numerical_vals(path) #reading slow as not vectorised
+from main.binning import bin_consts
+import argparse
+import main.IO.reading
+from enum import Enum
+
+
+
+def process(readpath : str, savepath : str, colNumsEnum : Enum):
+    print(f"Starting on :{readpath}, saving to {savepath}")
+    numerical_vals = reading.read_numerical_vals(readpath, colNumsEnum) #reading slow as not vectorised
     # print(numerical_vals)
     hitlocs = numerical_vals[:,1::]
     timestamps = numerical_vals[:,0]
-    obj_names = reading.read_event_type(path) #reading slow as not vectorised
-    # print(obj_names)
+    obj_names = reading.read_event_type(readpath, colNumsEnum) #reading slow as not vectorised
+    # print("obj names")
+    # for name in obj_names :
+    #     if name != "Poster" and name not in bin_consts.OBJ_TO_BINNER :
+    #         print(name)
     mappers = get_mappers(obj_names,hitlocs)
     print("Got mappers successfully")
     # print(mappers)
-    # print(mappers[mappers == np.nan])
+    print(np.nonzero([mappers == np.nan]))
     rel_bin_arr = apply_binners(mappers,hitlocs)
     print("Applied binners successfully")
     abs_bin_arr = bin.get_abs_bin(mappers, rel_bin_arr) # SLOW BECAUSE I HAVEN'T FIGURED OUT HOW TO VECTORISE THIS FULLY
@@ -50,4 +53,69 @@ if __name__ == "__main__":
     #         writer.writerow(out_data)
     print("all done")
     print(np.max(abs_bin_arr))
+
+def get_savepath(path: str, is_multicast: bool = False) -> str:
+    if (os.path.isdir(path)) :
+        folder_path = path
+    else:
+        folder_path, _ = os.path.split(path)
+
+    if is_multicast:
+        # If it is multicast, append "_multicast" to the base name
+        return os.path.join(folder_path,"mbinData.csv")
+
+    return os.path.join(folder_path, f"1binData.csv")
+
+    
+
+def bin_path(path : str, multicast : bool) :
+    # Use the provided path
+
+    if os.path.isdir(path):
+        # If a folder is passed, automatically search for both CSV files
+        singlecast_path = os.path.join(path, 'unityfile_eyelink.csv')
+        print(f"{singlecast_path}")
+        multicast_path = os.path.join(path, 'unityfile_eyelink_multicast.csv')
+
+        if os.path.exists(singlecast_path):
+            print(f"Processing singlecast CSV file: {singlecast_path}")
+            col_nums_enum = reading.colNumsSingleCast
+            savepath = get_savepath(singlecast_path, is_multicast = False)
+            process(singlecast_path, savepath, col_nums_enum)
+
+        if os.path.exists(multicast_path):
+            print("Processing multicast CSV file:")
+            col_nums_enum = reading.colNumsMulticast
+            savepath = get_savepath(multicast_path, is_multicast= True)
+            process(multicast_path, savepath, col_nums_enum)
+    else:
+        # If a single file is passed, determine whether it is singlecast or multicast based on the flag
+        if multicast:
+            savepath = get_savepath(path, is_multicast= True)
+            col_nums_enum = reading.colNumsMulticast
+        else:
+            savepath = get_savepath(path, is_multicast= False)
+            col_nums_enum = reading.colNumsSingleCast
+
+        print("Processing CSV file:")
+        process(path, savepath, col_nums_enum)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process CSV files.')
+    
+    parser.add_argument('--path', type=str, help='Path to the CSV file or folder. Ignored if path_to_list is provided.')
+    parser.add_argument('--path_to_list', type=str, help='Path to a .txt file that indicates, line by line, what csv files to use.')
+    parser.add_argument('--multicast', action='store_true', help='Flag indicating whether it is multicast. Ignored if path is a directory.')
+    
+    args = parser.parse_args()
+    
+    if args.path_to_list:
+        with open(args.path_to_list, 'r') as file:
+            for line in file:
+                current_path = line.strip()
+                bin_path(current_path, args.multicast)
+    else :
+        bin_path(args.path, args.multicast)
+
         
