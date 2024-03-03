@@ -34,6 +34,7 @@ def process(readpath : str, savepath : str, colNumsEnum : Enum):
     abs_bin_arr = bin.get_abs_bin(mappers, rel_bin_arr) # SLOW BECAUSE I HAVEN'T FIGURED OUT HOW TO VECTORISE THIS FULLY
     print("Converted relative to abs bin successfully")
     save_arr = np.hstack((timestamps.reshape(-1,1),abs_bin_arr.reshape(-1,1)))
+    save_arr = save_arr[abs_bin_arr > 0, :]
     np.savetxt(savepath,save_arr,fmt='%d',delimiter=',')
     # with open(savepath, 'w', newline ='') as file :
     #     # writer = csv.writer(file)
