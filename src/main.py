@@ -34,6 +34,7 @@ def process(readpath : str, savepath : str, colNumsEnum : Enum):
     abs_bin_arr = bin.get_abs_bin(mappers, rel_bin_arr) # SLOW BECAUSE I HAVEN'T FIGURED OUT HOW TO VECTORISE THIS FULLY
     print("Converted relative to abs bin successfully")
     save_arr = np.hstack((timestamps.reshape(-1,1),abs_bin_arr.reshape(-1,1)))
+    save_arr = save_arr[abs_bin_arr > 0, :]
     np.savetxt(savepath,save_arr,fmt='%d',delimiter=',')
     # with open(savepath, 'w', newline ='') as file :
     #     # writer = csv.writer(file)
@@ -68,9 +69,10 @@ def get_savepath(path: str, is_multicast: bool = False) -> str:
 
     
 
-def bin_path(path : str, multicast : bool) :
+def bin_path(path : str, multicast : bool, savepath : str) :
     # Use the provided path
 
+    '''
     if os.path.isdir(path):
         # If a folder is passed, automatically search for both CSV files
         singlecast_path = os.path.join(path, 'unityfile_eyelink.csv')
@@ -88,34 +90,35 @@ def bin_path(path : str, multicast : bool) :
             col_nums_enum = reading.colNumsMulticast
             savepath = get_savepath(multicast_path, is_multicast= True)
             process(multicast_path, savepath, col_nums_enum)
-    else:
-        # If a single file is passed, determine whether it is singlecast or multicast based on the flag
-        if multicast:
+    
+     else:
+      '''
+    # If a single file is passed, determine whether it is singlecast or multicast based on the flag
+    if multicast:
+        if not savepath : 
             savepath = get_savepath(path, is_multicast= True)
-            col_nums_enum = reading.colNumsMulticast
-        else:
+        
+        col_nums_enum = reading.colNumsMulticast
+    else:
+        if not savepath : 
             savepath = get_savepath(path, is_multicast= False)
-            col_nums_enum = reading.colNumsSingleCast
+        
+        col_nums_enum = reading.colNumsSingleCast
 
-        print("Processing CSV file:")
-        process(path, savepath, col_nums_enum)
+    print("Processing CSV file:")
+    process(path, savepath, col_nums_enum)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process CSV files.')
     
-    parser.add_argument('--path', type=str, help='Path to the CSV file or folder. Ignored if path_to_list is provided.')
-    parser.add_argument('--path_to_list', type=str, help='Path to a .txt file that indicates, line by line, what csv files to use.')
-    parser.add_argument('--multicast', action='store_true', help='Flag indicating whether it is multicast. Ignored if path is a directory.')
-    
+    parser.add_argument('--single_path', type=str, help='Path to the singlecast CSV')
+    parser.add_argument('--multi_path', type=str, help="Path to the multicast CSV")
+    parser.add_argument('--single_save_path', type=str, help="Path to save for single binning")
+    parser.add_argument('--multi_save_path', type=str, help="Path to save for multi binning")
     args = parser.parse_args()
-    
-    if args.path_to_list:
-        with open(args.path_to_list, 'r') as file:
-            for line in file:
-                current_path = line.strip()
-                bin_path(current_path, args.multicast)
-    else :
-        bin_path(args.path, args.multicast)
 
-        
+    bin_path(path=args.single_path, multicast=False, savepath=args.single_save_path)
+    bin_path(path=args.multi_path, multicast=True, savepath=args.multi_save_path)
+
+          
